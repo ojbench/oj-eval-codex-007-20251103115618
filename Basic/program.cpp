@@ -14,7 +14,9 @@
 
 Program::Program() = default;
 
-Program::~Program() = default;
+Program::~Program() {
+    clear();
+}
 
 void Program::clear() {
     for (auto &kv : parsedStmts) {
@@ -94,4 +96,3 @@ int Program::consumeRequest() {
     nextLineRequest = -2;
     return v;
 }
-
