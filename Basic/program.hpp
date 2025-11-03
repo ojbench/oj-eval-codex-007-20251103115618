@@ -143,10 +143,28 @@ public:
     //more func to add
     //todo
 
+    // Execution flow control helpers
+    void requestNextLine(int lineNumber);
+
+    void requestEnd();
+
+    bool hasRequest() const;
+
+    int consumeRequest();
+
 private:
 
     // Fill this in with whatever types and instance variables you need
-    //todo
+    // Source lines mapped by line number (preserve original text)
+    std::map<int, std::string> sourceLines;
+    // Parsed statements mapped by line number
+    std::map<int, Statement *> parsedStmts;
+
+    // Next-line request from a statement execution. Semantics:
+    // -2: no request (advance to next sequential line)
+    // -1: end program
+    // >=0: jump to specific line number
+    int nextLineRequest = -2;
 };
 
 #endif

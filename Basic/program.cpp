@@ -17,48 +17,81 @@ Program::Program() = default;
 Program::~Program() = default;
 
 void Program::clear() {
-    // Replace this stub with your own code
-    //todo
+    for (auto &kv : parsedStmts) {
+        delete kv.second;
+    }
+    parsedStmts.clear();
+    sourceLines.clear();
+    nextLineRequest = -2;
 }
 
 void Program::addSourceLine(int lineNumber, const std::string &line) {
-    // Replace this stub with your own code
-    //todo
+    // Replace or insert source line text
+    sourceLines[lineNumber] = line;
+    // If there was a parsed statement before, delete it (will be reset by caller)
+    auto it = parsedStmts.find(lineNumber);
+    if (it != parsedStmts.end()) {
+        delete it->second;
+        parsedStmts.erase(it);
+    }
 }
 
 void Program::removeSourceLine(int lineNumber) {
-    // Replace this stub with your own code
-    //todo
+    sourceLines.erase(lineNumber);
+    auto it = parsedStmts.find(lineNumber);
+    if (it != parsedStmts.end()) {
+        delete it->second;
+        parsedStmts.erase(it);
+    }
 }
 
 std::string Program::getSourceLine(int lineNumber) {
-    // Replace this stub with your own code
-    //todo
+    auto it = sourceLines.find(lineNumber);
+    if (it == sourceLines.end()) return "";
+    return it->second;
 }
 
 void Program::setParsedStatement(int lineNumber, Statement *stmt) {
-    // Replace this stub with your own code
-    //todo
+    if (sourceLines.find(lineNumber) == sourceLines.end()) {
+        // No such line; free provided stmt and raise error
+        delete stmt;
+        error("LINE NUMBER ERROR");
+    }
+    auto it = parsedStmts.find(lineNumber);
+    if (it != parsedStmts.end()) {
+        delete it->second;
+        it->second = stmt;
+    } else {
+        parsedStmts.emplace(lineNumber, stmt);
+    }
 }
 
-//void Program::removeSourceLine(int lineNumber) {
-
 Statement *Program::getParsedStatement(int lineNumber) {
-   // Replace this stub with your own code
-   //todo
+    auto it = parsedStmts.find(lineNumber);
+    if (it == parsedStmts.end()) return nullptr;
+    return it->second;
 }
 
 int Program::getFirstLineNumber() {
-    // Replace this stub with your own code
-    //todo
+    if (sourceLines.empty()) return -1;
+    return sourceLines.begin()->first;
 }
 
 int Program::getNextLineNumber(int lineNumber) {
-    // Replace this stub with your own code
-    //todo
+    auto it = sourceLines.upper_bound(lineNumber);
+    if (it == sourceLines.end()) return -1;
+    return it->first;
 }
 
-//more func to add
-//todo
+void Program::requestNextLine(int lineNumber) { nextLineRequest = lineNumber; }
 
+void Program::requestEnd() { nextLineRequest = -1; }
+
+bool Program::hasRequest() const { return nextLineRequest != -2; }
+
+int Program::consumeRequest() {
+    int v = nextLineRequest;
+    nextLineRequest = -2;
+    return v;
+}
 

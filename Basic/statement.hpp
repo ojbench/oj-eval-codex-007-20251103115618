@@ -73,6 +73,75 @@ public:
 
 };
 
+// REM statement (no-op)
+class RemStatement : public Statement {
+public:
+    explicit RemStatement(const std::string &comment) : comment(comment) {}
+    void execute(EvalState &state, Program &program) override;
+private:
+    std::string comment;
+};
+
+// LET statement
+class LetStatement : public Statement {
+public:
+    LetStatement(const std::string &name, Expression *exp) : name(name), exp(exp) {}
+    ~LetStatement() override { delete exp; }
+    void execute(EvalState &state, Program &program) override;
+private:
+    std::string name;
+    Expression *exp;
+};
+
+// PRINT statement
+class PrintStatement : public Statement {
+public:
+    explicit PrintStatement(Expression *exp) : exp(exp) {}
+    ~PrintStatement() override { delete exp; }
+    void execute(EvalState &state, Program &program) override;
+private:
+    Expression *exp;
+};
+
+// INPUT statement
+class InputStatement : public Statement {
+public:
+    explicit InputStatement(const std::string &name) : name(name) {}
+    void execute(EvalState &state, Program &program) override;
+private:
+    std::string name;
+};
+
+// END statement
+class EndStatement : public Statement {
+public:
+    EndStatement() = default;
+    void execute(EvalState &state, Program &program) override;
+};
+
+// GOTO statement
+class GotoStatement : public Statement {
+public:
+    explicit GotoStatement(int target) : target(target) {}
+    void execute(EvalState &state, Program &program) override;
+private:
+    int target;
+};
+
+// IF ... THEN ... statement
+class IfStatement : public Statement {
+public:
+    IfStatement(Expression *lhs, std::string op, Expression *rhs, int target)
+            : lhs(lhs), op(std::move(op)), rhs(rhs), target(target) {}
+    ~IfStatement() override { delete lhs; delete rhs; }
+    void execute(EvalState &state, Program &program) override;
+private:
+    Expression *lhs;
+    std::string op;
+    Expression *rhs;
+    int target;
+};
+
 
 /*
  * The remainder of this file must consists of subclass
