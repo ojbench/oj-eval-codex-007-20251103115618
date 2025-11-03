@@ -38,6 +38,7 @@ int main() {
                 continue;
             processLine(input, program, state);
         } catch (ErrorException &ex) {
+            if (ex.getMessage() == "#QUIT#") break;
             std::cout << ex.getMessage() << std::endl;
         }
     }
@@ -121,7 +122,7 @@ void processLine(std::string line, Program &program, EvalState &state) {
         state.Clear();
         return;
     } else if (keyword == "QUIT") {
-        std::exit(0);
+        throw ErrorException("#QUIT#");
     } else if (keyword == "HELP") {
         // optional; ignore or print simple help
         return;
